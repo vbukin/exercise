@@ -97,6 +97,7 @@ void vector_append(struct vector *vector, int value)
     vector_set(vector, vector_size(vector) - 1, value);
 }
 
+
 void vector_insert(struct vector *vector, int value, int position)
 {
     int i;
