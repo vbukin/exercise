@@ -2,100 +2,84 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct student
+struct st_student
 {
     char name[16];
-    int number;
-    int grade;
+    double grade_sum;
+    int grade_count;
+
 };
 
-struct student *all_students = 0;
 int students_count = 0;
 
-void student_append(const struct student *next_student)
-{
-    struct student *temp_students = malloc((students_count + 1) * sizeof(struct student));
-    memcpy(temp_students, all_students, students_count * sizeof(struct student));
-    memcpy(temp_students + students_count, next_student, sizeof(struct student));
-    students_count++;
-    free(all_students);
-    all_students = temp_students;
-}
-
-void students_print(FILE *file)
+int find_position_student(const struct st_student *student, char name)
 {
     int i = students_count;
-    struct student *cs = all_students;
     while (i--)
     {
-        fprintf(file, "%d %s %d %d\n", i + 1, cs->name, cs->number, cs->grade);
-        cs++;
+        if (strcmp(student[i].name, &name));
+        return i;
     }
+    return -1;
 }
 
-void insert_grade(int number, int grade)
+void student_append(const struct st_student *next_student, struct st_student **current_students)
 {
-    int i;
-    for (i = 0; i < students_count; i++)
+    int i = find_position_student(current_students, next_student->name);
+    printf ("1");
+    if ( i != -1)
     {
-        if (all_students[i].number == number)
-        {
-            all_students[i].grade = grade;
-            return;
-        }
+
+        current_students[i]->grade_sum += next_student->grade_sum;
+        current_students[i]->grade_count++;
+        return;
     }
-    fprintf(stderr, "grade for %d not found\n", number);
+    printf ("2");
+    struct st_student *temp_student = malloc((students_count + 1) * sizeof(struct st_student));
+    memcpy(temp_student, current_students, students_count * sizeof(struct st_student));
+    //    memcpy(temp_student + students_count, next_student, sizeof(struct student));
+    students_count++;
+    printf ("%d", students_count);
+    free(*current_students);
+    *current_students = temp_student;
+}
+
+print_list_of_students(const struct st_student *students)
+{
+    int i = students_count;
+    while (i--)
+        printf ("%s 123", students[i].name);
 }
 
 int main(int argc, char *argv[])
 {
-    FILE *file_of_students;
-    FILE *file_of_grade;
-    FILE *file_of_result;
+    FILE *current_file;
 
-    if (argc != 4)
+    struct st_student *all_students;
+    struct st_student student;
+
+    /*  if (argc < 3)
     {
-        fprintf(stderr, "need only 3 parametrs, you put %d", argc - 1);
-        return 2;
+        fprintf(stderr, "need choise two or more files, you put %d", argc - 1);
     }
-
-    if (!(file_of_students = fopen(argv[1], "r")))
+*/
+    int i;
+    for (i = 1; i < argc; i++)
     {
-        fprintf(stderr, "cant open file %s", argv[1]);
-        return 1;
+        if (!(current_file = fopen(argv[i], "r")))
+        {
+            fprintf(stderr, "cant open file %s", argv[i]);
+            return 1;
+        }
+
+        while (fscanf(current_file, "%15s %l", student.name, student.grade_sum) == 2)
+        {
+            student_append(&student, &all_students);
+        }
+
+
+
     }
-
-    struct student st;
-    st.grade = 0;
-    while (fscanf(file_of_students, "%15s %d\n", st.name, &st.number) == 2)
-        student_append(&st);
-
-    students_print(stdout);
-    fclose(file_of_students);
-
-    if (!(file_of_grade = fopen(argv[2], "r")))
-    {
-        fprintf(stderr, "cant open file %s", argv[2]);
-        return 3;
-    }
-
-    int number;
-    int grade;
-    while (fscanf(file_of_grade, "%d %d\n", &number, &grade) == 2)
-        insert_grade(number, grade);
-
-    students_print(stdout);
-    fclose(file_of_grade);
-
-    if (!(file_of_result = fopen(argv[3], "w")))
-    {
-        fprintf(stderr, "cant write to %s", argv[3]);
-        return 5;
-    }
-
-    students_print(file_of_result);
-    fclose(file_of_result);
-
-    free(all_students);
+    print_list_of_students(all_students);
     return 0;
 }
