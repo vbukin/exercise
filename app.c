@@ -1,92 +1,115 @@
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <math.h>
 
-struct st_student
+struct matrix
 {
-    char name[16];
-    double grade_sum;
-    int grade_count;
+    int row_count;
+    int col_count;
+    float **rows;
 };
 
-int students_count = 0;
-struct st_student *all_students = 0;
 
-int find_position_student(const char *name)
+void allocate(struct matrix *m, int rows, int cols)
 {
-    int i = students_count;
-    while (i--)
-    {
-        if (!strcmp(all_students[i].name, name))
-            return i;
-    }
-    return -1;
-}
+    float** new_rows;
 
-void student_append(const struct st_student *next_student)
-{
-    int i = find_position_student(next_student->name);
-    if (i != -1)
-    {
-        all_students[i].grade_sum += next_student->grade_sum;
-        all_students[i].grade_count++;
-        return;
-    }
-
-    struct st_student *temp_student = malloc((students_count + 1) * sizeof(struct st_student));
-    memcpy(temp_student, all_students, students_count * sizeof(struct st_student));
-    memcpy(temp_student + students_count, next_student, sizeof(struct st_student));
-    students_count++;
-    free(all_students);
-    all_students = temp_student;
-}
-
-void print_list_of_students(FILE *file)
-{
-    int i = students_count;
-    while (i--)
-        fprintf (file, "%s: %lf: %lf\n", all_students[i].name, all_students[i].grade_sum, all_students[i].grade_sum/all_students[i].grade_count);
-}
-
-int main(int argc, char *argv[])
-{
-    if (argc < 3)
-    {
-        fprintf(stderr, "need choise two or more files, you put %d", argc - 1);
-        return 1;
-    }
+    new_rows = malloc(sizeof(float *) * rows);
 
     int i;
-    for (i = 1; i < argc - 1; i++)
+    for (i = 0; i < rows; i++)
     {
-        FILE *current_file;
-        struct st_student student;
-        student.grade_count = 1;
-
-        if (!(current_file = fopen(argv[i], "r")))
-        {
-            fprintf(stderr, "cant open file %s", argv[i]);
-            return 2;
-        }
-
-        while (fscanf(current_file, "%15s %lf", student.name, &student.grade_sum) == 2)
-        {
-            student_append(&student);
-        }
-
-        fclose(current_file);
+        float* new_row = malloc(sizeof(float) * cols);
+        *(new_rows + i) = new_row;
     }
 
-    FILE *file_out;
-    if ((file_out = fopen(argv[i], "w")))
+    (*m).row_count = rows;
+    (*m).col_count = cols;
+    (*m).rows = new_rows;
+}
+
+void deallocate(struct matrix *m)
+{
+    int i;
+    for (i = 0; i < (*m).row_count; i++)
+        free(*((*m).rows + i));
+    free((*m).rows);
+    (*m).col_count = 0;
+    (*m).row_count = 0;
+    (*m).rows = 0;
+}
+
+void set(struct matrix *m, int row, int col, float value)
+{
+    assert((col >= 0) && (col < (*m).col_count));
+    assert((row >= 0) && (row < (*m).row_count));
+    *(*((*m).rows + row) + col) = value;
+}
+
+float get(const struct matrix *m, int row, int col)
+{
+    assert((col >= 0) && (col < (*m).col_count));
+    assert((row >= 0) && (row < (*m).row_count));
+    return *(*((*m).rows + row) + col);
+}
+
+void print(const struct matrix *m, FILE *file)
+{
+    int row;
+    for (row = 0; row < (*m).row_count; row++)
     {
-        print_list_of_students(file_out);
-        fclose(file_out);
+        int col;
+        for (col = 0; col < (*m).col_count; col++)
+            fprintf(file, "%f ", *(*((*m).rows + row) + col));
+        fprintf(file, "\n");
     }
-    else
+    fprintf(file, "\n");
+}
+
+
+void sum(const struct matrix *a, const struct matrix *b, struct matrix *res)
+{
+    assert(((*a).col_count == (*b).col_count) && ((*a).row_count == (*b).row_count));
+    assert(((*a).col_count == (*res).col_count) && ((*a).row_count == (*res).row_count));
+    const int rows = (*a).row_count;
+    const int cols = (*a).col_count;
+    int row;
+    for (row = 0; row < rows; row++)
     {
-        fprintf(stderr, "cant open file %s", argv[i]);
-        return 3;
+        int col;
+        for (col = 0; col < cols; col++)
+            *(*((*res).rows + row) + col) = *(*((*a).rows + row) + col)  + *(*((*b).rows + row) + col);
     }
+}
+
+
+
+int main(int argc, char **argv)
+{
+    struct matrix a;
+    struct matrix b;
+    struct matrix c;
+
+    allocate(&a, 3, 2);
+    allocate(&b, 3, 2);
+    allocate(&c, 3, 2);
+
+    set(&a, 1, 0, M_PI);
+    set(&a, 2, 1, 2.71);
+
+    set(&b, 0, 0, 1);
+    set(&b, 2, 1, 2);
+
+    sum(&b, &a, &c);
+
+    print(&a, stdout);
+    print(&b, stdout);
+    print(&c, stdout);
+
+    deallocate(&a);
+    deallocate(&b);
+    deallocate(&c);
+
     return 0;
 }
