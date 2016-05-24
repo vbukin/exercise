@@ -1,8 +1,26 @@
 #include "common.h"
 
-int bar1 = 2;
-int bar2 = 2;
-int bar4 = 2;
+static void foo_file(void);
 
-foo1();
-foo2();
+static int bar_file;
+
+void foo_global_2(void)
+{
+    foo_global_1();
+    foo_file();
+
+    bar_global = 10;
+    bar_file = 7;
+}
+
+static void foo_file(void)
+{
+    int bar_function;
+    static int bar_function_stat = 0;
+
+    bar_function = 2;
+
+    bar_function_stat++;
+}
+
+int bar_global;

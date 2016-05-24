@@ -1,11 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
-extern int bar1;
 
-void foo1(void);
-void foo2(void)
-{
+void foo_global_1(void);
+void foo_global_2(void);
 
-};
+extern int bar_global;
 
-#endif // COMMON_H
+#endif

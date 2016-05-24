@@ -1,12 +1,19 @@
 #include "common.h"
 
-int bar1 = 1;
-extern int bar2;
-char bar3 = '1';
-foo1();
-void foo3(void)
+static int bar_file = 9;
+
+static void foo_file(void)
 {
-    extern int bar4 = 1;
-    char bar5 = '123';
-    static int bar5 = 1;
+    int bar_function;
+
+    bar_function = 1;
+
 }
+
+void foo_global_1(void)
+{
+    foo_file();
+    bar_global = 5;
+}
+
+
