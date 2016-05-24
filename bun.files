@@ -2,3 +2,6 @@ app.c
 mylib.h
 mylib.c
 file+edit.txt
+file_1.c
+file_2.c
+common.h
