@@ -83,11 +83,63 @@ void sum(const struct matrix *a, const struct matrix *b, struct matrix *res)
     }
 }
 
+/*
+int compare(static char sym_1, static char sym_2)
+{
+    switch (sym_1)
+    {
+        case '\'':
+            return -1;
+        case sym_2:
+            return 1;
+        default:
+            return -1;
+    }
+}*/
+void next_row(FILE *file)
+{
+    char cur_char = fgetc(file);
+    while(cur_char != '\n')
+    {
+        cur_char = fgetc(file);
+    }
 
+}
 
 int main(int argc, char **argv)
 {
-    struct matrix a;
+    if (argc != 3)
+    {
+        printf("Set file and find string. \n");
+        return -1;
+    };
+    FILE *fp;
+    if((fp=fopen(argv[1], "rt"))==NULL)
+    {
+        printf("Can't open file.\n");
+        return -1;
+     }
+    char next_char;
+    char *find_str;
+    char *result_str;
+
+    result_str = malloc(sizeof(char) * (strlen(argv[2]) + 1);
+
+    int i = 0;
+
+    while((next_char = fgetc(fp)) != EOF)
+    {
+        result_str[i] = next_char;
+        if (find_str[i] == '\0' and next_char == '\n')
+        {
+            printf()
+        }
+        printf("%c", next_char);
+
+    }
+
+    fclose(fp);
+    /*struct matrix a;
     struct matrix b;
     struct matrix c;
 
@@ -110,6 +162,6 @@ int main(int argc, char **argv)
     deallocate(&a);
     deallocate(&b);
     deallocate(&c);
-
+*/
     return 0;
 }
